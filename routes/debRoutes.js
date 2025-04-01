@@ -67,18 +67,8 @@ router.put("/publication/:id", authenticateToken, controllerPubs.updatePublicati
  */
 router.get("/publication/:idPub/comments", authenticateToken, controllerPubs.getComments);
 
-/**
- * @route POST /publication/:idPub/comment
- * @description Agrega un comentario a una publicación.
- * @param {string} idPub - El ID de la publicación.
- * @body {Object} comment - Datos del comentario.
- * @bodyParam {string} author - Autor del comentario.
- * @bodyParam {string} content - Contenido del comentario.
- * @returns {Object} 201 - Comentario agregado exitosamente.
- * @returns {Object} 400 - Datos inválidos.
- * @returns {Object} 500 - Mensaje de error.
- */
-router.post("/publication/:idPub/comment", authenticateToken, controllerPubs.addCommentToPublication);
+//POST /debate/position/:id Elegir si el usuario está a favor o en contra en el debate Jorge
+router.post("/debate/:idPub/comment", authenticateToken, controllerPubs.addCommentToPublication);
 
 /**
  * @route DELETE /publication/:idPub/comment/:idComment
