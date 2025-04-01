@@ -3,7 +3,7 @@ const { pubCollection } = require("../models/debate");
 
 
 /*Debate
-
+2
 ● POST /debate Crear debate Mario
 ● GET /debate debates existentes Mario
 ● POST /debate/position/:id Elegir si el usuario está a favor o en contra en el debate Jorge

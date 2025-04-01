@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const controllerPubs = require("../controllers/pubsController");
+const controllerPubs = require("../controllers/debController");
 
 const { authenticateToken } = require('../middleware/authMiddleware');
 
