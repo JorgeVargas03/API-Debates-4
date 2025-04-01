@@ -1,5 +1,5 @@
 // services/publicationService.js
-const { pubCollection } = require("../models/publicacion");
+const { pubCollection } = require("../models/debate");
 
 // Obtener todas las publicaciones
 exports.getPublications = async () => {

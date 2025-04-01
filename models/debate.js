@@ -2,6 +2,6 @@
 const { db } = require("../config/database.config");
 
 // Definición de la colección "publications" en Firebase
-const pubCollection = db.collection("publications");
+const debateCollection = db.collection("Debates_Coleccion");
 
-module.exports = { pubCollection };
+module.exports = { debateCollection };

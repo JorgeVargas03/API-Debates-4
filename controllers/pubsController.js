@@ -1,4 +1,4 @@
-const pubServices = require("../services/servicePubs");
+const pubServices = require("../services/serviceDeb");
 
 // Obtener todas las publicaciones
 exports.getAllPublications = async (req, res) => {

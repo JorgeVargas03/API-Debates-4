@@ -1,10 +1,10 @@
 const express = require("express");
 const app = express();
-const pubRoutes = require("./routes/pubRoutes"); // 👈 Verifica que esta línea importe bien el archivo
+const debRoutes = require("./routes/debRoutes"); // 👈 Verifica que esta línea importe bien el archivo
 const authRoutes = require("./routes/authRoutes");
 
 app.use(express.json());
-app.use("/api", pubRoutes); // 👈 Aquí usa "pubRoutes", no un objeto
+app.use("/api/v1", debRoutes); // 👈 Aquí usa "pubRoutes", no un objeto
 app.use("/auth", authRoutes);
 
 const PORT = process.env.PORT || 3001;
