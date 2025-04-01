@@ -1,0 +1,25 @@
+{
+  "name": "publicaciones",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "app.js"
+  },
+  "keywords": [],
+  "author": "Jorge Betancourt",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JorgeVargas03/API-publications-authentication.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JorgeVargas03/API-publications-authentication/issues"
+  },
+  "homepage": "https://github.com/JorgeVargas03/API-publications-authentication#readme"
+}
