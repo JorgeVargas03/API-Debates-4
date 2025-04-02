@@ -1,5 +1,19 @@
 const debServices = require("../services/serviceDeb");
 
+
+// ● POST /debate Crear debate Mario
+exports.addDebate = async (req, res) => {
+
+}
+
+
+// ● GET /debate debates existentes Mario
+exports.getDebates = async (req, res) => {
+  
+}
+
+
+
 //● POST /debate/position/:id - Elegir si el usuario está a favor o en contra en el debate
 exports.setDebatePosition = async (req, res) => {
   const { id } = req.params; // Obtiene el ID del debate desde la URL
