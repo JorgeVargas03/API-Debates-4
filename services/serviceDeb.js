@@ -59,6 +59,8 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
 
     let debateData = debateSnapshot.data();
     let comments = debateData.comments || [];
+    let peopleInFavor = debateData.peopleInFavor || [];
+    let peopleAgainst = debateData.peopleAgainst || [];
 
     // Obtener la fecha actual
     const currentDate = new Date().toISOString();
@@ -71,12 +73,26 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
       datareg: currentDate, // Fecha de registro
     };
 
-    // Agregar el nuevo comentario a la lista de comentarios
+    // Agregar el comentario a la lista de comentarios
     comments.push(newComment);
 
-    // Actualizar los comentarios en la base de datos
+    // Si la posición es a favor (true), agregar el usuario a peopleInFavor
+    if (position) {
+      if (!peopleInFavor.includes(username)) {
+        peopleInFavor.push(username);
+      }
+    } else {
+      // Si la posición es en contra (false), agregar el usuario a peopleAgainst
+      if (!peopleAgainst.includes(username)) {
+        peopleAgainst.push(username);
+      }
+    }
+
+    // Actualizar los comentarios y las listas de personas a favor y en contra en la base de datos
     await debateRef.update({
       comments: comments,
+      peopleInFavor: peopleInFavor,
+      peopleAgainst: peopleAgainst,
     });
 
     return {
