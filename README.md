@@ -4,24 +4,14 @@
 
 Betancourt Espericueta Jorge Ismael - 21400655
 
-Natividad Aguilera Andrick Joksan -21400736
-
-Sánchez Leal Britney Bellanay - 21400778
-
 Vargas Partida Jorge Luis - 21400786
 
-Martinez Velazquez Pedro - 19400615
- 
+Enciso Ramirez Daniel Alexis - 21400673
+
+Galindo López Santa Lucia - 21400680
+
+Jiménez Larios Luis Mario - 20400759
+
 ## Contenido
 
-Este proyecto consiste en el desarrollo de una API REST que gestiona publicaciones y comentarios, permitiendo a los usuarios interactuar con ellos de forma sencilla y eficiente. La aplicación está diseñada para facilitar la creación, modificación y eliminación de publicaciones y comentarios, con un enfoque especial en la seguridad mediante la implementación de autenticación basada en JWT (JSON Web Tokens).
-
-Características principales
-
-Autenticación con JWT: Protege las rutas de la API para garantizar que solo los usuarios autenticados puedan acceder a ciertos recursos.
-
-Gestión de publicaciones: Los usuarios pueden crear, leer, actualizar y eliminar publicaciones.
-
-Gestión de eventos: Los usuarios pueden crear, leer, actualizar y eliminar comentarios relacionados con el proyecto.
-
-Módulo inteligente: Permite obtener tendencias y regular el contenido en los comentarios, evitando comentarios inadecuados.
+En esta actividad, nos enfocaremos en el desarrollo de la propuesta de API presentada por el equipo 3, centrada en la gestión de debates en línea. La API REST propuesta permite a los usuarios registrarse, iniciar sesión, crear debates, comentar y adoptar una postura (a favor o en contra) sobre los temas discutidos. Además, se implementa autenticación basada en JWT y se han integrado diversas validaciones en los endpoints para garantizar la seguridad y la integridad de los datos. El objetivo de esta actividad es interpretar la propuesta de la API y llevar a cabo su desarrollo de manera eficiente.
