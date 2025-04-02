@@ -1,11 +1,9 @@
-// services/serviceDeb.js
-const { debCollection } = require("../models/debate");
-const admin = require("firebase-admin"); // Si estás usando Firebase Admin SDK
+const { debateCollection } = require("../models/debate");
 
 //● POST /debate/:id comentario
 exports.setDebatePosition = async (debateId, username, position) => {
   try {
-    const debateRef = debCollection.doc(debateId);
+    const debateRef = debateCollection.doc(debateId);
     const debateSnapshot = await debateRef.get();
 
     if (!debateSnapshot.exists) {
@@ -14,30 +12,26 @@ exports.setDebatePosition = async (debateId, username, position) => {
 
     let debateData = debateSnapshot.data();
     let peopleInFavor = debateData.peopleInFavor || [];
-    let peopleAgainst = debateData.peopleAgainst || []; // Corregido "peopleAgaist" a "peopleAgainst"
+    let peopleAgainst = debateData.peopleAgainst || [];
 
     // Verificar si el usuario ya está en alguna de las listas
     if (peopleInFavor.includes(username)) {
-      // El usuario ya está a favor, entonces lo eliminamos de esa lista
       peopleInFavor = peopleInFavor.filter((user) => user !== username);
     } else if (peopleAgainst.includes(username)) {
-      // El usuario ya está en contra, entonces lo eliminamos de esa lista
       peopleAgainst = peopleAgainst.filter((user) => user !== username);
     }
 
     // Alternar la postura del usuario
     if (position) {
-      // Si la posición es "true" (a favor), agregar a la lista de a favor
       peopleInFavor.push(username);
     } else {
-      // Si la posición es "false" (en contra), agregar a la lista de en contra
       peopleAgainst.push(username);
     }
 
     // Actualizar las listas de personas a favor y en contra en la base de datos
     await debateRef.update({
       peopleInFavor,
-      peopleAgainst, // Corregido "peopleAgaist" a "peopleAgainst"
+      peopleAgainst,
     });
 
     return { success: true, message: "Posición actualizada exitosamente" };
@@ -50,7 +44,7 @@ exports.setDebatePosition = async (debateId, username, position) => {
 //● POST /debate/:id comentario
 exports.addCommentToDebate = async (debateId, username, position, argument) => {
   try {
-    const debateRef = debCollection.doc(debateId);
+    const debateRef = debateCollection.doc(debateId);
     const debateSnapshot = await debateRef.get();
 
     if (!debateSnapshot.exists) {
@@ -67,10 +61,10 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
 
     // Crear el nuevo comentario con un id generado automáticamente por Firebase
     const newComment = {
-      username: username, // El nombre del usuario que realiza el comentario
-      position: position, // Posición del usuario en el debate (true o false)
-      argument: argument, // El argumento proporcionado por el usuario
-      datareg: currentDate, // Fecha de registro
+      username: username,
+      position: position,
+      argument: argument,
+      datareg: currentDate,
     };
 
     // Agregar el comentario a la lista de comentarios
@@ -82,7 +76,6 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
         peopleInFavor.push(username);
       }
     } else {
-      // Si la posición es en contra (false), agregar el usuario a peopleAgainst
       if (!peopleAgainst.includes(username)) {
         peopleAgainst.push(username);
       }
