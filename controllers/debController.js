@@ -1,10 +1,5 @@
 const debServices = require("../services/serviceDeb");
 
-//● POST /debate/position/:id Elegir si el usuario está a favor o en contra en el debate Jorge
-const db = require("../config/firebase"); // Configuración de Firebase
-
-const debServices = require("../services/serviceDeb");
-
 //● POST /debate/position/:id - Elegir si el usuario está a favor o en contra en el debate
 exports.setDebatePosition = async (req, res) => {
   const { id } = req.params; // Obtiene el ID del debate desde la URL
@@ -60,13 +55,11 @@ exports.addCommentToDebate = async (req, res) => {
     );
 
     if (response.success) {
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: response.message,
-          data: response.data,
-        });
+      return res.status(200).json({
+        success: true,
+        message: response.message,
+        data: response.data,
+      });
     } else {
       return res
         .status(404)

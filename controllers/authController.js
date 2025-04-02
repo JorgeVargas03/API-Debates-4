@@ -75,7 +75,7 @@ const validateCredentials = async (username, password) => {
 
   // Validar que la contraseña tenga al menos 8 caracteres y no tenga espacios
   if (!password || password.length < 8 || password.includes(" ")) {
-    return { valid: false, message: "La contraseña no cumple con los requisitos. Requisitos: maximo 8 caracteres, NO espacios en blanco" };
+    return { valid: false, message: "La contraseña no cumple con los requisitos. Requisitos: mínimo 8 caracteres, NO espacios en blanco" };
   }
 
   try {
