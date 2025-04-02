@@ -5,19 +5,8 @@ const controllerPubs = require("../controllers/debController");
 const { authenticateToken } = require('../middleware/authMiddleware');
 
 
-router.get("/publication", authenticateToken, controllerPubs.getAllPublications);
 
 
-router.get("/publication/:id", authenticateToken, controllerPubs.getPublicationById);
-
-
-router.post("/publication", authenticateToken, controllerPubs.createPublication);
-
-
-router.delete("/publication/:id", authenticateToken, controllerPubs.deletePublication);
-
-
-router.put("/publication/:id", authenticateToken, controllerPubs.updatePublication);
-
+router.post("/publication/id/position", authenticateToken, controllerPubs.createPublication);
 
 module.exports = router;
