@@ -41,33 +41,34 @@ exports.createDebate = async (nameDebate, argument, category, username) => {
 //● POST /debate/:id comentario
 exports.setDebatePosition = async (debateId, username, position) => {
   try {
-    const debateRef = debateCollection.doc(debateId);
+    // Buscar el debate usando el campo "idDebate" en lugar del ID de documento
+    const debateRef = debateCollection.where("idDebate", "==", debateId);
     const debateSnapshot = await debateRef.get();
 
-    if (!debateSnapshot.exists) {
+    if (debateSnapshot.empty) {
       return { success: false, message: "Debate no encontrado" };
     }
 
-    let debateData = debateSnapshot.data();
+    // Obtener el primer debate que coincida (en este caso, debería haber solo uno)
+    const debateDoc = debateSnapshot.docs[0];
+    const debateData = debateDoc.data();
+
     let peopleInFavor = debateData.peopleInFavor || [];
     let peopleAgainst = debateData.peopleAgainst || [];
 
-    // Verificar si el usuario ya está en alguna de las listas
-    if (peopleInFavor.includes(username)) {
-      peopleInFavor = peopleInFavor.filter((user) => user !== username);
-    } else if (peopleAgainst.includes(username)) {
-      peopleAgainst = peopleAgainst.filter((user) => user !== username);
-    }
+    // Eliminar al usuario de ambas listas antes de cambiar su postura
+    peopleInFavor = peopleInFavor.filter((user) => user !== username);
+    peopleAgainst = peopleAgainst.filter((user) => user !== username);
 
-    // Alternar la postura del usuario
+    // Agregar el usuario a la lista correcta según su nueva posición
     if (position) {
       peopleInFavor.push(username);
     } else {
       peopleAgainst.push(username);
     }
 
-    // Actualizar las listas de personas a favor y en contra en la base de datos
-    await debateRef.update({
+    // Actualizar el documento en Firestore
+    await debateDoc.ref.update({
       peopleInFavor,
       peopleAgainst,
     });
@@ -78,6 +79,7 @@ exports.setDebatePosition = async (debateId, username, position) => {
     return { success: false, message: "Error interno del servidor" };
   }
 };
+
 
 //● POST /debate/:id comentario
 exports.addCommentToDebate = async (debateId, username, position, argument) => {
