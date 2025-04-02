@@ -1,24 +1,30 @@
+// controllers/controllerDeb.js
 const debServices = require("../services/serviceDeb");
 
-
-// ● POST /debate Crear debate Mario
 exports.addDebate = async (req, res) => {
+  try {
+    const username  = req.username; // Obtiene el nombre del usuario desde el middleware
+    const { titule, argument, category } = req.body;
 
-}
+    const response = await debServices.createDebate(titule, argument, category, username);
 
-
-// ● GET /debate debates existentes Mario
-exports.getDebates = async (req, res) => {
-  
-}
-
+    if (response.success) {
+      return res.status(201).json({ success: true, message: response.message, id: response.id });
+    } else {
+      return res.status(400).json({ success: false, message: response.message });
+    }
+  } catch (error) {
+    console.error("Error al crear debate", error);
+    return res.status(500).json({ success: false, message: "Error interno del servidor" });
+  }
+};
 
 
 //● POST /debate/position/:id - Elegir si el usuario está a favor o en contra en el debate
 exports.setDebatePosition = async (req, res) => {
   const { id } = req.params; // Obtiene el ID del debate desde la URL
   const { position } = req.body; // La postura (true para a favor, false para en contra)
-  const { username } = req.username; // Obtiene el nombre del usuario desde el middleware
+  const  username  = req.username; // Obtiene el nombre del usuario desde el middleware
 
   if (typeof position !== "boolean") {
     return res
@@ -52,7 +58,7 @@ exports.setDebatePosition = async (req, res) => {
 exports.addCommentToDebate = async (req, res) => {
   const { id } = req.params; // Obtiene el ID del debate desde la URL
   const { position, argument } = req.body; // Obtiene la postura y el argumento del cuerpo de la solicitud
-  const { username } = req.username; // Obtiene el nombre del usuario desde el middleware
+  const  username  = req.username; // Obtiene el nombre del usuario desde el middleware
 
   if (typeof position !== "boolean") {
     return res
