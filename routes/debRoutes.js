@@ -4,6 +4,9 @@ const controllerDeb = require("../controllers/debController");
 
 const { authenticateToken } = require('../middleware/authMiddleware');
 
+//Endpoint para ver todos los debates
+router.get("/debates", authenticateToken, controllerDeb.getAllDebates);
+
 //Endpoint para agregar un debate
 router.post('/debate', authenticateToken, controllerDeb.addDebate);
 

@@ -1,12 +1,27 @@
 // controllers/controllerDeb.js
 const debServices = require("../services/serviceDeb");
 
+exports.getAllDebates = async (req, res) => {
+  try {
+    const response = await debServices.getAllDebates();
+
+    if (response.success) {
+      return res.status(200).json(response.debates);
+    } else {
+      return res.status(400).json({ success: false, message: response.message });
+    }
+  } catch (error) {
+    console.error("Error al obtener debates", error);
+    return res.status(500).json({ success: false, message: "Error interno del servidor" });
+  }
+};
+
 exports.addDebate = async (req, res) => {
   try {
     const username  = req.username; // Obtiene el nombre del usuario desde el middleware
     const { titule, argument, category } = req.body;
 
-    const response = await debServices.createDebate(titule, argument, category, username);
+    const response = await debServices.createDebate(title, argument, category, username);
 
     if (response.success) {
       return res.status(201).json({ success: true, message: response.message, id: response.id });

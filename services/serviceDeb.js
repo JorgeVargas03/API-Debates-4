@@ -1,6 +1,18 @@
 // services/serviceDeb.js
 const { debateCollection } = require("../models/debate");
 
+exports.getAllDebates = async () => {
+  try {
+    const snapshot = await debateCollection.get();
+    const debates = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return { success: true, debates };
+  } catch (error) {
+    console.error("Error al obtener debates", error);
+    return { success: false, message: "Error interno del servidor" };
+  }
+};
+
+
 exports.createDebate = async (nameDebate, argument, category, username) => {
   try {
     const validCategories = [
@@ -30,7 +42,7 @@ exports.createDebate = async (nameDebate, argument, category, username) => {
     return {
       success: true,
       message: "Debate creado exitosamente",
-      id: idDebate,
+      id:idDebate, /*id: newDebate.idDebate, // Corrección aquí*/
     };
   } catch (error) {
     console.error("Error al crear debate", error);
@@ -144,3 +156,4 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
     return { success: false, message: "Error interno del servidor" };
   }
 };
+
