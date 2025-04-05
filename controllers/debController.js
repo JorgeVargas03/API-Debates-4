@@ -53,7 +53,7 @@ exports.setDebatePosition = async (req, res) => {
   try {
     const response = await debServices.setDebatePosition(id, username, position);
 
-    if (response.message === "Posición actualizada exitosamente") {
+    if (response.message === "Posición actualizada correctamente") {
       return res.status(200).json({ message: response.message }); // 200 OK
     } else {
       return res.status(404).json({ message: response.message }); // 404 Not found

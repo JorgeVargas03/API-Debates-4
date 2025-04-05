@@ -84,7 +84,7 @@ exports.setDebatePosition = async (debateId, username, position) => {
       peopleAgainst,
     });
 
-    return { message: "La solicitud se ha completado con éxito." }; // 200 OK
+    return { message: "Posición actualizada correctamente" }; // 200 OK
   } catch (error) {
     console.error("Error en setDebatePosition", error);
     return { message: "Error interno del servidor" }; // 500 Internal Server Error
