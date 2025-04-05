@@ -155,3 +155,68 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
   }
 };
 
+//PUT /comment/:idComentario
+exports.updateComment = async (idComment, username, newPosition, newArgument) => {
+  try {
+    const debateSnapshot = await debateCollection.get();
+
+    for (let doc of debateSnapshot.docs) {
+      const debateData = doc.data();
+      let comments = debateData.comments || [];
+
+      const commentIndex = comments.findIndex(c => c.idComment === idComment);
+
+      if (commentIndex !== -1) {
+        // Comentario encontrado
+        const comment = comments[commentIndex];
+
+        if (comment.username !== username) {
+          return {
+            success: false,
+            code: 401,
+            message: "No autorizado, no es el autor del comentario."
+          };
+        }
+        const oldPosition = comment.position;
+
+        // Actualizar el comentario
+        comment.argument = newArgument;
+        comment.position = newPosition;
+        comment.dateEdit = new Date().toISOString();
+
+        // Actualizar arrays de posición
+        let peopleInFavor = debateData.peopleInFavor || [];
+        let peopleAgainst = debateData.peopleAgainst || [];
+
+        // Si cambió la posición, lo movemos de lista
+        if (oldPosition !== newPosition) {
+          if (oldPosition) {
+            peopleInFavor = peopleInFavor.filter(user => user !== username);
+            if (!peopleAgainst.includes(username)) peopleAgainst.push(username);
+          } else {
+            peopleAgainst = peopleAgainst.filter(user => user !== username);
+            if (!peopleInFavor.includes(username)) peopleInFavor.push(username);
+          }
+        }
+
+        // Guardar los cambios
+        await doc.ref.update({
+          comments,
+          peopleInFavor,
+          peopleAgainst,
+        });
+
+        return {
+          success: true,
+          data: comment,
+        };
+      }
+    }
+
+    return { success: false, message: "Comentario no encontrado." }; // 404
+  } catch (error) {
+    console.error("Error al actualizar comentario", error);
+    return { success: false, message: "Error interno del servidor." }; // 500
+  }
+};
+
