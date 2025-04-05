@@ -18,15 +18,20 @@ exports.getAllDebates = async (req, res) => {
 
 exports.addDebate = async (req, res) => {
   try {
-    const username  = req.username; // Obtiene el nombre del usuario desde el middleware
-    const { titule, argument, category } = req.body;
+    const username = req.username; // Obtiene el nombre del usuario desde el middleware
+    const { title, argument, category } = req.body;
+
+    // Validación: Verificar que todos los campos existan
+    if (!title || !argument || !category) {
+      return res.status(400).json({ message: "Argumentos no coinciden" });
+    }
 
     const response = await debServices.createDebate(title, argument, category, username);
 
     if (response.success) {
-      return res.status(201).json({ success: true, message: response.message, id: response.id });
+      return res.status(201).json({ message: response.message, id: response.id });
     } else {
-      return res.status(400).json({ success: false, message: response.message });
+      return res.status(400).json({ message: response.message });
     }
   } catch (error) {
     console.error("Error al crear debate", error);
@@ -39,71 +44,48 @@ exports.addDebate = async (req, res) => {
 exports.setDebatePosition = async (req, res) => {
   const { id } = req.params; // Obtiene el ID del debate desde la URL
   const { position } = req.body; // La postura (true para a favor, false para en contra)
-  const  username  = req.username; // Obtiene el nombre del usuario desde el middleware
+  const username = req.username; // Obtiene el nombre del usuario desde el middleware
 
   if (typeof position !== "boolean") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Argumentos no coinciden" });
+    return res.status(400).json({ message: "Argumentos no coinciden" }); // 400 Bad Request
   }
 
   try {
-    const response = await debServices.setDebatePosition(
-      id,
-      username,
-      position
-    );
+    const response = await debServices.setDebatePosition(id, username, position);
 
-    if (response.success) {
-      return res.status(200).json({ success: true, message: response.message });
+    if (response.message === "Posición actualizada exitosamente") {
+      return res.status(200).json({ message: response.message }); // 200 OK
     } else {
-      return res
-        .status(404)
-        .json({ success: false, message: response.message });
+      return res.status(404).json({ message: response.message }); // 404 Not found
     }
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error interno del servidor" });
+    return res.status(500).json({ message: "Error interno del servidor" }); // 500 Internal Server Error
   }
 };
+
+
 
 //● POST /debate/:id/comentario - Agregar un comentario a un debate
 exports.addCommentToDebate = async (req, res) => {
   const { id } = req.params; // Obtiene el ID del debate desde la URL
   const { position, argument } = req.body; // Obtiene la postura y el argumento del cuerpo de la solicitud
-  const  username  = req.username; // Obtiene el nombre del usuario desde el middleware
+  const username = req.username; // Obtiene el nombre del usuario desde el middleware
 
   if (typeof position !== "boolean") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Argumentos no coinciden" });
+    return res.status(400).json({ message: "Argumentos no coinciden" }); // 400 Bad Request
   }
 
   try {
-    const response = await debServices.addCommentToDebate(
-      id,
-      username,
-      position,
-      argument
-    );
+    const response = await debServices.addCommentToDebate(id, username, position, argument);
 
     if (response.success) {
-      return res.status(200).json({
-        success: true,
-        message: response.message,
-        data: response.data,
-      });
+      return res.status(200).json({ message: "La solicitud se ha completado con éxito." }); // 200 OK
     } else {
-      return res
-        .status(404)
-        .json({ success: false, message: response.message });
+      return res.status(404).json({ message: "Debate no encontrado." }); // 404 Not found
     }
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error interno del servidor" });
+    return res.status(500).json({ message: "Error interno del servidor." }); // 500 Internal Server Error
   }
 };

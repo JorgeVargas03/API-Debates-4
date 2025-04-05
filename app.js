@@ -4,7 +4,7 @@ const debRoutes = require("./routes/debRoutes"); // 👈 Verifica que esta líne
 const authRoutes = require("./routes/authRoutes");
 
 app.use(express.json());
-app.use("/api", debRoutes); // 👈 Aquí usa "pubRoutes", no un objeto
+app.use("/api/v1", debRoutes); // 👈 Aquí usa "pubRoutes", no un objeto
 app.use("/auth", authRoutes);
 
 const PORT = process.env.PORT || 3001;
