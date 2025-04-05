@@ -89,3 +89,36 @@ exports.addCommentToDebate = async (req, res) => {
     return res.status(500).json({ message: "Error interno del servidor." }); // 500 Internal Server Error
   }
 };
+
+// PUT /comment/:idComentario
+exports.updateComment = async (req, res) => {
+  const { idComentario } = req.params;
+  const { position, argument } = req.body;
+  const username = req.username;
+
+  if (typeof position !== "boolean" || typeof argument !== "string") {
+    return res.status(400).json({ message: "Argumentos no coinciden" }); // 400
+  }
+
+  try {
+    const response = await debServices.updateComment(idComentario, username, position, argument);
+
+    if (!response.success && response.message === "Comentario no encontrado.") {
+      return res.status(404).json({ message: response.message }); // 404
+    }
+
+    if (!response.success && response.code === 401) {
+      return res.status(401).json({ message: response.message });
+    }
+
+    return res.status(201).json({
+      message: "La solicitud ha tenido éxito y se ha creado un nuevo recurso.",
+      data: response.data
+    }); // 201 Created
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+};
+
