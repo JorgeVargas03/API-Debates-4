@@ -129,10 +129,10 @@ exports.updateComment = async (req, res) => {
       return res.status(401).json({ message: response.message });
     }
 
-    return res.status(201).json({
-      message: "La solicitud ha tenido éxito y se ha creado un nuevo recurso.",
+    return res.status(200).json({
+      message: "La solicitud ha tenido éxito y el recurso ha sido actualizado.",
       data: response.data
-    }); // 201 Created
+    });
 
   } catch (error) {
     console.error(error);
