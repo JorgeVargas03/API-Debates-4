@@ -12,6 +12,35 @@ exports.getAllDebates = async () => {
   }
 };
 
+// Por categoría
+exports.getDebatesByCategory = async (category) => {
+  try {
+    const snapshot = await debateCollection.get();
+    const debates = snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(debate => debate.category?.toLowerCase() === category.toLowerCase());
+
+    return { success: true, debates };
+  } catch (error) {
+    console.error("Error al obtener debates por categoría", error);
+    return { success: false, message: "Error interno del servidor" };
+  }
+};
+
+// Por usuario autenticado
+exports.getDebatesByUser = async (username) => {
+  try {
+    const snapshot = await debateCollection.get();
+    const debates = snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(debate => debate.usernameCreate?.toLowerCase() === username.toLowerCase());
+
+    return { success: true, debates };
+  } catch (error) {
+    console.error("Error al obtener debates del usuario", error);
+    return { success: false, message: "Error interno del servidor" };
+  }
+};
 
 exports.createDebate = async (nameDebate, argument, category, username) => {
   try {

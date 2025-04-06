@@ -3,12 +3,30 @@ const debServices = require("../services/serviceDeb");
 
 exports.getAllDebates = async (req, res) => {
   try {
-    const response = await debServices.getAllDebates();
+    const { category, user } = req.query;
+    const authUser = req.username; // desde el JWT extraído en el middleware
 
-    if (response.success) {
-      return res.status(200).json(response.debates);
+    let result;
+
+    if (category) {
+      result = await debServices.getDebatesByCategory(category);
+    } else if (user) {
+      if (!authUser || user.toLowerCase() !== authUser.toLowerCase()) {
+        return res.status(401).json({ success: false, message: "No autorizado" });
+      }
+      result = await debServices.getDebatesByUser(authUser);
     } else {
-      return res.status(400).json({ success: false, message: response.message });
+      result = await debServices.getAllDebates();
+    }
+
+    if (result.success && result.debates.length > 0) {
+      return res.status(200).json(result.debates);
+    } else if (result.success && result.debates.length === 0) {
+      return res.status(204).json({ success: false, message : " La solicitud se ha completado, pero no hay contenido para enviar" });
+    } else if (result.success) {
+      return res.status(400).json({ success: false, message: "Argumentos no coinciden" });
+    } else {
+      return res.status(401).json({ success: false, message: "Es necesario autenticar para obtener la respuesta solicitada. " });
     }
   } catch (error) {
     console.error("Error al obtener debates", error);
