@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
     res.status(200).json({ message: "La solicitud se ha completado con exito" +
       ". Usuario registrado correctamente", userId: newUserRef.id });
   } catch (error) {
-    res.status(400).json({ message: "Argumentos no coinciden" });
+    res.status(500).json({ message: "Error del servidor" });
   }
 };
 
