@@ -12,7 +12,7 @@ exports.register = async (req, res) => {
   // Validar credenciales
   const validation = await validateCredentials(username, password);
   if (!validation.valid) {
-    return res.status(400).json({ message: validation.message });
+    return res.status(400).json({ message: "Las credenciales no coinciden" });
   }
 
   try {
