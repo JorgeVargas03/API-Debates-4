@@ -4,14 +4,13 @@ const { debateCollection } = require("../models/debate");
 exports.getAllDebates = async () => {
   try {
     const snapshot = await debateCollection.get();
-    const debates = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const debates = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     return { success: true, debates };
   } catch (error) {
     console.error("Error al obtener debates", error);
     return { success: false, message: "Error interno del servidor" };
   }
 };
-
 // Por categoría
 exports.getDebatesByCategory = async (category) => {
   try {
@@ -70,8 +69,8 @@ exports.createDebate = async (nameDebate, argument, category, username) => {
     const debateRef = await debateCollection.add(newDebate);
     return {
       success: true,
-      message: "Debate creado exitosamente",
-      id:idDebate, /*id: newDebate.idDebate, // Corrección aquí*/
+      message: "La solicitud ha tenido éxito y se ha creado un nuevo recurso",
+      id: debateRef.idDebate /*id: newDebate.idDebate, // Corrección aquí*/,
     };
   } catch (error) {
     console.error("Error al crear debate", error);
@@ -87,7 +86,7 @@ exports.setDebatePosition = async (debateId, username, position) => {
     const debateSnapshot = await debateRef.get();
 
     if (debateSnapshot.empty) {
-      return { success: false, message: "Debate no encontrado" };
+      return { message: "Debate no encontrado" }; // 404 Not found
     }
 
     // Obtener el primer debate que coincida (en este caso, debería haber solo uno)
@@ -114,28 +113,26 @@ exports.setDebatePosition = async (debateId, username, position) => {
       peopleAgainst,
     });
 
-    return { success: true, message: "Posición actualizada exitosamente" };
+    return { message: "Posición actualizada correctamente" }; // 200 OK
   } catch (error) {
     console.error("Error en setDebatePosition", error);
-    return { success: false, message: "Error interno del servidor" };
+    return { message: "Error interno del servidor" }; // 500 Internal Server Error
   }
 };
-
 
 //● POST /debate/:id comentario
 exports.addCommentToDebate = async (debateId, username, position, argument) => {
   try {
-    // Buscar el debate usando el campo "idDebate" en lugar del ID de documento
-    const debateRef = debateCollection.where("idDebate", "==", debateId); // Busca por el campo "idDebate"
+    // Asegúrate de que el nombre del campo es el correcto
+    const debateRef = debateCollection.where("idDebate", "==", debateId); // Consulta correcta
     const debateSnapshot = await debateRef.get();
 
     if (debateSnapshot.empty) {
       console.log("No se encontró el debate con el idDebate:", debateId);
-      return { success: false, message: "Debate no encontrado" };
+      return { success: false, message: "Debate no encontrado." }; // 404 Not found
     }
 
-    // Obtener el primer debate que coincida (en este caso, debería haber solo uno)
-    const debateDoc = debateSnapshot.docs[0];
+    const debateDoc = debateSnapshot.docs[0]; // Obtener el primer documento
     const debateData = debateDoc.data();
 
     let comments = debateData.comments || [];
@@ -144,19 +141,19 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
 
     const currentDate = new Date().toISOString();
 
-    // Crear un nuevo comentario con un id autogenerado
+    // Crear el nuevo comentario
     const newComment = {
-      idComment: `${Date.now()}`, // Generar un ID único basado en el timestamp
+      idComment: `${Date.now()}`,
       username: username,
       position: position,
       argument: argument,
       datareg: currentDate,
     };
 
-    // Agregar el nuevo comentario al array de comentarios
+    // Agregar el nuevo comentario al array
     comments.push(newComment);
 
-    // Si la posición es a favor (true), agregar el usuario a peopleInFavor
+    // Agregar el usuario a la lista correspondiente
     if (position) {
       if (!peopleInFavor.includes(username)) {
         peopleInFavor.push(username);
@@ -167,22 +164,88 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
       }
     }
 
-    // Actualizar el documento con los nuevos comentarios y las listas de personas a favor y en contra
+    // Actualizar el documento de Firestore
     await debateDoc.ref.update({
       comments: comments,
       peopleInFavor: peopleInFavor,
       peopleAgainst: peopleAgainst,
     });
 
-    // Retornar la respuesta con el nuevo comentario y su ID generado
+    // Respuesta exitosa
     return {
       success: true,
-      message: "Comentario agregado exitosamente",
+      message: "Comentario agregado exitosamente.",
       data: newComment,
     };
+
   } catch (error) {
     console.error("Error al agregar comentario", error);
-    return { success: false, message: "Error interno del servidor" };
+    return { success: false, message: "Error interno del servidor." }; // 500
+  }
+};
+
+//PUT /comment/:idComentario
+exports.updateComment = async (idComment, username, newPosition, newArgument) => {
+  try {
+    const debateSnapshot = await debateCollection.get();
+
+    for (let doc of debateSnapshot.docs) {
+      const debateData = doc.data();
+      let comments = debateData.comments || [];
+
+      const commentIndex = comments.findIndex(c => c.idComment === idComment);
+
+      if (commentIndex !== -1) {
+        // Comentario encontrado
+        const comment = comments[commentIndex];
+
+        if (comment.username !== username) {
+          return {
+            success: false,
+            code: 401,
+            message: "No autorizado, no es el autor del comentario."
+          };
+        }
+        const oldPosition = comment.position;
+
+        // Actualizar el comentario
+        comment.argument = newArgument;
+        comment.position = newPosition;
+        comment.dateEdit = new Date().toISOString();
+
+        // Actualizar arrays de posición
+        let peopleInFavor = debateData.peopleInFavor || [];
+        let peopleAgainst = debateData.peopleAgainst || [];
+
+        // Si cambió la posición, lo movemos de lista
+        if (oldPosition !== newPosition) {
+          if (oldPosition) {
+            peopleInFavor = peopleInFavor.filter(user => user !== username);
+            if (!peopleAgainst.includes(username)) peopleAgainst.push(username);
+          } else {
+            peopleAgainst = peopleAgainst.filter(user => user !== username);
+            if (!peopleInFavor.includes(username)) peopleInFavor.push(username);
+          }
+        }
+
+        // Guardar los cambios
+        await doc.ref.update({
+          comments,
+          peopleInFavor,
+          peopleAgainst,
+        });
+
+        return {
+          success: true,
+          data: comment,
+        };
+      }
+    }
+
+    return { success: false, message: "Comentario no encontrado." }; // 404
+  } catch (error) {
+    console.error("Error al actualizar comentario", error);
+    return { success: false, message: "Error interno del servidor." }; // 500
   }
 };
 

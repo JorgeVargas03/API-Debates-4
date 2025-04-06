@@ -16,4 +16,7 @@ router.post("/debate/:id/position", authenticateToken, controllerDeb.setDebatePo
 //Endpoint para agregar comentario a un debate
 router.post("/debate/:id", authenticateToken, controllerDeb.addCommentToDebate);
 
+//Endpoint para editar un comentario 
+router.put("/comment/:idComentario", authenticateToken, controllerDeb.updateComment);
+
 module.exports = router;
