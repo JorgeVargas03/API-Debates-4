@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
       { expiresIn: time }
     );
 
-    res.status(200).json({ token, info: `La solicitud se ha completado con éxito ${time}` });
+    res.status(200).json({ token, info: `La solicitud se ha completado con éxito. Sesion: ${time}` });
   } catch (error) {
     res.status(500).json({ message: "Error al iniciar sesión" });
   }
@@ -86,7 +86,6 @@ const validateCredentials = async (username, password) => {
 
     return { valid: true, message: "Credenciales válidas" };
   } catch (error) {
-    console.error("Error al validar credenciales:", error);
     return { valid: false, message: "Error al validar credenciales" };
   }
 };
