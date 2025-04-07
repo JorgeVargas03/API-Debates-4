@@ -22,4 +22,7 @@ router.post("/debate/:id", authenticateToken, controllerDeb.addCommentToDebate);
 //Endpoint para editar un comentario 
 router.put("/comment/:idComentario", authenticateToken, controllerDeb.updateComment);
 
+// Eliminar un comentario
+router.delete("/comment/:idComentario", authenticateToken, controllerDeb.deleteComment);
+
 module.exports = router;
