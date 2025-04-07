@@ -7,6 +7,9 @@ const { authenticateToken } = require('../middleware/authMiddleware');
 //Endpoint para ver todos los debates
 router.get("/debates", authenticateToken, controllerDeb.getAllDebates);
 
+//Nueva ruta pública para ver debates de cualquier usuario
+router.get("/debates/public", authenticateToken, controllerDeb.getPublicDebates);
+
 //Endpoint para agregar un debate
 router.post('/debate', authenticateToken, controllerDeb.addDebate);
 

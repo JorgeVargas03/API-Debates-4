@@ -26,6 +26,20 @@ exports.getDebatesByCategory = async (category) => {
   }
 };
 
+exports.getDebatesByUser = async (username) => {
+  try {
+    const snapshot = await debateCollection
+      .where("usernameCreate", "==", username)
+      .get();
+
+    const debates = snapshot.docs.map(doc => doc.data());
+    return debates;
+  } catch (error) {
+    console.error("Error al obtener debates por usuario:", error);
+    return [];
+  }
+};
+
 // Por usuario autenticado
 exports.getDebatesByUser = async (username) => {
   try {

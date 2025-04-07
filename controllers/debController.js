@@ -34,6 +34,27 @@ exports.getAllDebates = async (req, res) => {
   }
 };
 
+exports.getPublicDebates = async (req, res) => {
+  try {
+    const { user } = req.query;
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Se requiere el parámetro user" });
+    }
+
+    const debates = await debServices.getDebatesByUser(user);
+
+    if (!debates || debates.length === 0) {
+      return res.status(204).json(); // No hay contenido
+    }
+
+    return res.status(200).json({ success: true, debates });
+  } catch (error) {
+    console.error("Error al obtener debates públicos", error);
+    return res.status(500).json({ success: false, message: "Error interno del servidor" });
+  }
+};
+
 exports.addDebate = async (req, res) => {
   try {
     const username = req.username; // Obtiene el nombre del usuario desde el middleware
