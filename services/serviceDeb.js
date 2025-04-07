@@ -263,7 +263,7 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
   }
 };
 
-//DELETE/comentario
+//DDELETE /comment/:idComentario
 exports.deleteComment = async (idComentario, username) => {
   try {
     const snapshot = await debateCollection.get();
