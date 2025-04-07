@@ -263,3 +263,46 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
   }
 };
 
+//DELETE/comentario
+exports.deleteComment = async (idComentario, username) => {
+  try {
+    const snapshot = await debateCollection.get();
+
+    let debateEncontrado = null;
+    let comentarioIndex = -1;
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const comments = data.comments || [];
+
+      const index = comments.findIndex(c => c.id === idComentario);
+
+      if (index !== -1) {
+        debateEncontrado = { docId: doc.id, comments };
+        comentarioIndex = index;
+      }
+    });
+
+    if (!debateEncontrado) {
+      return { success: false, message: "Comentario no encontrado" };
+    }
+
+    const comentario = debateEncontrado.comments[comentarioIndex];
+
+    if (comentario.username !== username) {
+      return { success: false, code: 401, message: "No autorizado para eliminar este comentario" };
+    }
+
+    debateEncontrado.comments.splice(comentarioIndex, 1);
+
+    await debateCollection.doc(debateEncontrado.docId).update({
+      comments: debateEncontrado.comments
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error al eliminar comentario", error);
+    return { success: false, message: "Error interno del servidor" };
+  }
+};
+
