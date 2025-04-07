@@ -160,4 +160,26 @@ exports.updateComment = async (req, res) => {
     return res.status(500).json({ message: "Error interno del servidor." });
   }
 };
+//DELETE/comment/:idComentario
+exports.deleteComment = async (req, res) => {
+  const { idComentario } = req.params;
+  const username = req.username;
+
+  try {
+    const response = await debServices.deleteComment(idComentario, username);
+
+    if (!response.success && response.message === "Comentario no encontrado") {
+      return res.status(404).json({ message: response.message });
+    }
+
+    if (!response.success && response.code === 401) {
+      return res.status(401).json({ message: response.message });
+    }
+
+    return res.status(200).json({ message: "La solicitud se ha completado con éxito." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+};
 
