@@ -12,7 +12,7 @@ exports.register = async (req, res) => {
   // Validar credenciales
   const validation = await validateCredentials(username, password);
   if (!validation.valid) {
-    return res.status(400).json({ message: validation.message });
+    return res.status(400).json({ message: "Las credenciales no coinciden" });
   }
 
   try {
@@ -22,10 +22,10 @@ exports.register = async (req, res) => {
     // Crear un nuevo usuario
     const newUserRef = await userCollection.add({ username, password: hashedPassword });
 
-    res.status(201).json({ message: "Usuario registrado correctamente", userId: newUserRef.id });
+    res.status(200).json({ message: "La solicitud se ha completado con exito" +
+      ". Usuario registrado correctamente", userId: newUserRef.id });
   } catch (error) {
-    console.error("Error al registrar el usuario:", error);
-    res.status(500).json({ message: "Error al registrar el usuario" });
+    res.status(500).json({ message: "Error del servidor" });
   }
 };
 
@@ -40,7 +40,7 @@ exports.login = async (req, res) => {
       .where("username", "==", username)
       .get();
     if (userSnapshot.empty) {
-      return res.status(401).json({ message: "Credenciales incorrectas" });
+      return res.status(400).json({ message: "Argumentos no coinciden" });
     }
 
     const userDoc = userSnapshot.docs[0];
@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
     // Comparar la contraseña proporcionada con la almacenada
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Credenciales incorrectas" });
+      return res.status(400).json({ message: "Argumentos no coinciden" });
     }
 
     const time = "30m";
@@ -60,9 +60,8 @@ exports.login = async (req, res) => {
       { expiresIn: time }
     );
 
-    res.json({ token, info: `Sesión válida durante ${time}` });
+    res.status(200).json({ token, info: `La solicitud se ha completado con éxito. Sesion: ${time}` });
   } catch (error) {
-    console.error("Error al iniciar sesión:", error);
     res.status(500).json({ message: "Error al iniciar sesión" });
   }
 };
@@ -87,7 +86,6 @@ const validateCredentials = async (username, password) => {
 
     return { valid: true, message: "Credenciales válidas" };
   } catch (error) {
-    console.error("Error al validar credenciales:", error);
     return { valid: false, message: "Error al validar credenciales" };
   }
 };
