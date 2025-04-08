@@ -16,8 +16,10 @@ exports.getDebatesByCategory = async (category) => {
   try {
     const snapshot = await debateCollection.get();
     const debates = snapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter(debate => debate.category?.toLowerCase() === category.toLowerCase());
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter(
+        (debate) => debate.category?.toLowerCase() === category.toLowerCase()
+      );
 
     return { success: true, debates };
   } catch (error) {
@@ -32,7 +34,7 @@ exports.getDebatesByUser = async (username) => {
       .where("usernameCreate", "==", username)
       .get();
 
-    const debates = snapshot.docs.map(doc => doc.data());
+    const debates = snapshot.docs.map((doc) => doc.data());
     return debates;
   } catch (error) {
     console.error("Error al obtener debates por usuario:", error);
@@ -45,8 +47,11 @@ exports.getDebatesByUser = async (username) => {
   try {
     const snapshot = await debateCollection.get();
     const debates = snapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter(debate => debate.usernameCreate?.toLowerCase() === username.toLowerCase());
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter(
+        (debate) =>
+          debate.usernameCreate?.toLowerCase() === username.toLowerCase()
+      );
 
     return { success: true, debates };
   } catch (error) {
@@ -191,7 +196,6 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
       message: "Comentario agregado exitosamente.",
       data: newComment,
     };
-
   } catch (error) {
     console.error("Error al agregar comentario", error);
     return { success: false, message: "Error interno del servidor." }; // 500
@@ -199,7 +203,12 @@ exports.addCommentToDebate = async (debateId, username, position, argument) => {
 };
 
 //PUT /comment/:idComentario
-exports.updateComment = async (idComment, username, newPosition, newArgument) => {
+exports.updateComment = async (
+  idComment,
+  username,
+  newPosition,
+  newArgument
+) => {
   try {
     const debateSnapshot = await debateCollection.get();
 
@@ -207,7 +216,7 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
       const debateData = doc.data();
       let comments = debateData.comments || [];
 
-      const commentIndex = comments.findIndex(c => c.idComment === idComment);
+      const commentIndex = comments.findIndex((c) => c.idComment === idComment);
 
       if (commentIndex !== -1) {
         // Comentario encontrado
@@ -217,7 +226,7 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
           return {
             success: false,
             code: 401,
-            message: "No autorizado, no es el autor del comentario."
+            message: "No autorizado, no es el autor del comentario.",
           };
         }
         const oldPosition = comment.position;
@@ -234,10 +243,10 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
         // Si cambió la posición, lo movemos de lista
         if (oldPosition !== newPosition) {
           if (oldPosition) {
-            peopleInFavor = peopleInFavor.filter(user => user !== username);
+            peopleInFavor = peopleInFavor.filter((user) => user !== username);
             if (!peopleAgainst.includes(username)) peopleAgainst.push(username);
           } else {
-            peopleAgainst = peopleAgainst.filter(user => user !== username);
+            peopleAgainst = peopleAgainst.filter((user) => user !== username);
             if (!peopleInFavor.includes(username)) peopleInFavor.push(username);
           }
         }
@@ -264,57 +273,47 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
 };
 
 // DELETE /comment/:idComment
-exports.deleteComment = async (idComment, username) => {
+exports.deleteComment = async (idComentario, username) => {
   try {
-    const debateSnapshot = await debateCollection.get();
+    const snapshot = await debateCollection.get();
 
-    for (let doc of debateSnapshot.docs) {
-      const debateData = doc.data();
-      let comments = debateData.comments || [];
+    let debateFound = null;
+    let debateDocId = null;
 
-      const commentIndex = comments.findIndex(c => c.idComment === idComment);
+    // Buscar el comentario en todos los debates
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if (Array.isArray(data.comments)) {
+        const commentIndex = data.comments.findIndex(
+          (c) => c.idComment === idComentario
+        );
 
-      if (commentIndex !== -1) {
-        const comment = comments[commentIndex];
-
-        if (comment.username !== username) {
-          return {
-            success: false,
-            code: 401,
-            message: "No autorizado, no es el autor del comentario.",
-          };
+        if (commentIndex !== -1) {
+          debateFound = data;
+          debateDocId = doc.id;
         }
-
-        const position = comment.position;
-        const updatedComments = comments.filter(c => c.idComment !== idComment);
-
-        // Actualizar listas de posición
-        let peopleInFavor = debateData.peopleInFavor || [];
-        let peopleAgainst = debateData.peopleAgainst || [];
-
-        if (position) {
-          peopleInFavor = peopleInFavor.filter(user => user !== username);
-        } else {
-          peopleAgainst = peopleAgainst.filter(user => user !== username);
-        }
-
-        // Guardar cambios en el documento
-        await doc.ref.update({
-          comments: updatedComments,
-          peopleInFavor,
-          peopleAgainst,
-        });
-
-        return {
-          success: true,
-          message: "Comentario eliminado correctamente.",
-        };
       }
+    });
+
+    if (!debateFound) {
+      return { success: false, message: "Comentario no encontrado" };
     }
 
-    return { success: false, message: "Comentario no encontrado." };
+    const comment = debateFound.comments.find(
+      (c) => c.idComment === idComentario
+    );
+
+    const updatedComments = debateFound.comments.filter(
+      (c) => c.idComment !== idComentario
+    );
+
+    await debateCollection
+      .doc(debateDocId)
+      .update({ comments: updatedComments });
+
+    return { success: true, message: "Comentario eliminado exitosamente" };
   } catch (error) {
-    console.error("Error al eliminar comentario", error);
-    return { success: false, message: "Error interno del servidor." };
+    console.error("Error al eliminar comentario:", error);
+    return { success: false, message: "Error interno del servidor" };
   }
 };
