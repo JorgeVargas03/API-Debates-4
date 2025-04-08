@@ -264,7 +264,7 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
 };
 
 //DDELETE /comment/:idComentario
-exports.deleteComment = async (idComentario, username) => {
+exports.deleteComment = async (idComment, username) => {
   try {
     const snapshot = await debateCollection.get();
 
@@ -275,7 +275,7 @@ exports.deleteComment = async (idComentario, username) => {
       const data = doc.data();
       const comments = data.comments || [];
 
-      const index = comments.findIndex(c => c.id === idComentario);
+      const index = comments.findIndex(c => c.id === idComment);
 
       if (index !== -1) {
         debateEncontrado = { docId: doc.id, comments };
