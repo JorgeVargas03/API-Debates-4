@@ -264,45 +264,58 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
 };
 
 //DELETE /comment/:idComentario
-exports.deleteComment = async (idComentario, username) => {
+// DELETE /comment/:idComment
+exports.deleteComment = async (idComment, username) => {
   try {
-    const snapshot = await debateCollection.get();
+    const debateSnapshot = await debateCollection.get();
 
-    let debateEncontrado = null;
-    let comentarioIndex = -1;
+    for (let doc of debateSnapshot.docs) {
+      const debateData = doc.data();
+      let comments = debateData.comments || [];
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const comments = data.comments || [];
+      const commentIndex = comments.findIndex(c => c.idComment === idComment);
 
-      const index = comments.findIndex(c => c.id === idComentario);
+      if (commentIndex !== -1) {
+        const comment = comments[commentIndex];
 
-      if (index !== -1) {
-        debateEncontrado = { docId: doc.id, comments };
-        comentarioIndex = index;
+        if (comment.username !== username) {
+          return {
+            success: false,
+            code: 401,
+            message: "No autorizado, no es el autor del comentario.",
+          };
+        }
+
+        const position = comment.position;
+        const updatedComments = comments.filter(c => c.idComment !== idComment);
+
+        // Actualizar listas de posición
+        let peopleInFavor = debateData.peopleInFavor || [];
+        let peopleAgainst = debateData.peopleAgainst || [];
+
+        if (position) {
+          peopleInFavor = peopleInFavor.filter(user => user !== username);
+        } else {
+          peopleAgainst = peopleAgainst.filter(user => user !== username);
+        }
+
+        // Guardar cambios en el documento
+        await doc.ref.update({
+          comments: updatedComments,
+          peopleInFavor,
+          peopleAgainst,
+        });
+
+        return {
+          success: true,
+          message: "Comentario eliminado correctamente.",
+        };
       }
-    });
-
-    if (!debateEncontrado) {
-      return { success: false, message: "Comentario no encontrado" };
     }
 
-    const comentario = debateEncontrado.comments[comentarioIndex];
-
-    if (comentario.username !== username) {
-      return { success: false, code: 401, message: "No autorizado para eliminar este comentario" };
-    }
-
-    debateEncontrado.comments.splice(comentarioIndex, 1);
-
-    await debateCollection.doc(debateEncontrado.docId).update({
-      comments: debateEncontrado.comments
-    });
-
-    return { success: true };
+    return { success: false, message: "Comentario no encontrado." };
   } catch (error) {
     console.error("Error al eliminar comentario", error);
-    return { success: false, message: "Error interno del servidor" };
+    return { success: false, message: "Error interno del servidor." };
   }
 };
-
