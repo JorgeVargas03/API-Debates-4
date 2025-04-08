@@ -263,8 +263,8 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
   }
 };
 
-//DDELETE /comment/:idComentario
-exports.deleteComment = async (idComment, username) => {
+//DELETE /comment/:idComentario
+exports.deleteComment = async (idComentario, username) => {
   try {
     const snapshot = await debateCollection.get();
 
@@ -275,7 +275,7 @@ exports.deleteComment = async (idComment, username) => {
       const data = doc.data();
       const comments = data.comments || [];
 
-      const index = comments.findIndex(c => c.id === idComment);
+      const index = comments.findIndex(c => c.id === idComentario);
 
       if (index !== -1) {
         debateEncontrado = { docId: doc.id, comments };
