@@ -263,7 +263,6 @@ exports.updateComment = async (idComment, username, newPosition, newArgument) =>
   }
 };
 
-//DELETE /comment/:idComentario
 // DELETE /comment/:idComment
 exports.deleteComment = async (idComment, username) => {
   try {
